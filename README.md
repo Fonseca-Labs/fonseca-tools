@@ -1,6 +1,6 @@
 # Fonseca Tools
 
-MVP estático com 20 microferramentas gratuitas. Todo o processamento desta versão ocorre no navegador, sem banco de dados e sem API paga.
+MVP estático com 20 microferramentas gratuitas. O processamento dos valores e textos inseridos nas ferramentas ocorre no navegador, sem banco de dados e sem API paga. O Google Analytics 4 é carregado somente após consentimento explícito do visitante.
 
 ## Estrutura
 
@@ -8,9 +8,10 @@ MVP estático com 20 microferramentas gratuitas. Todo o processamento desta vers
 - `assets/styles.css`: visual compartilhado.
 - `assets/app.js`: motor genérico das ferramentas.
 - uma pasta por ferramenta, cada uma com seu `index.html`.
-- `privacidade/`: política compatível com a versão atual, que não usa analytics nem anúncios.
+- `privacidade/`: política de privacidade, incluindo o uso consentido do Google Analytics 4.
 - `sitemap.xml` e `robots.txt`: arquivos de indexação.
 - `build_site.py`: fonte geradora das páginas.
+- `postbuild.py`: pós-processamento do build, incluindo GA4 com consentimento e ajustes de SEO.
 - `.github/workflows/pages.yml`: deploy automático no GitHub Pages.
 
 ## Rodar localmente
@@ -38,11 +39,11 @@ python build_site.py
 
 ## GitHub Pages
 
-O workflow calcula automaticamente a URL `https://USUARIO.github.io/REPOSITORIO`, executa o gerador e publica o site. Para um repositório chamado `fonseca-tools` na conta `davdsmlqnt007-bot`, a URL prevista é:
+O workflow calcula automaticamente a URL `https://ORGANIZACAO.github.io/REPOSITORIO`, executa o gerador, aplica o pós-build e publica o site. O endereço atual é:
 
-`https://davdsmlqnt007-bot.github.io/fonseca-tools/`
+`https://fonseca-labs.github.io/fonseca-tools/`
 
-Depois de criar o repositório público e enviar estes arquivos, abra **Settings → Pages** e selecione **GitHub Actions** como fonte de publicação. A partir daí, cada push em `main` dispara novo deploy.
+O GitHub Pages usa **GitHub Actions** como fonte de publicação. Cada push em `main` dispara um novo deploy.
 
 ## Princípio do projeto
 
