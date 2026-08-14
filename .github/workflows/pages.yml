@@ -33,8 +33,10 @@ jobs:
           python seo_enhance.py
           python architecture_enhance.py
           python postbuild.py
+          python analytics_events.py
           node --check assets/app.js
           python validate_build.py
+          python validate_analytics.py
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
