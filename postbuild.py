@@ -4,6 +4,7 @@ import os
 ROOT = Path(__file__).resolve().parent
 SITE_URL = os.environ.get("SITE_URL", "").rstrip("/")
 GA_ID = os.environ.get("GA_MEASUREMENT_ID", "").strip()
+ASSET_VERSION = (os.environ.get("GITHUB_SHA", "") or "dev")[:12]
 
 if not GA_ID:
     raise SystemExit("GA_MEASUREMENT_ID is required")
@@ -59,6 +60,14 @@ for path in ROOT.rglob("*.html"):
     if path.name.startswith("google"):
         continue
     text = path.read_text(encoding="utf-8")
+
+    # Cache-bust local static assets on every deploy. This prevents a newly
+    # generated tool page from being paired with an older cached app.js.
+    text = text.replace('href="assets/styles.css"', f'href="assets/styles.css?v={ASSET_VERSION}"')
+    text = text.replace('href="../assets/styles.css"', f'href="../assets/styles.css?v={ASSET_VERSION}"')
+    text = text.replace('src="assets/app.js"', f'src="assets/app.js?v={ASSET_VERSION}"')
+    text = text.replace('src="../assets/app.js"', f'src="../assets/app.js?v={ASSET_VERSION}"')
+
     if "googletagmanager.com/gtag/js" not in text:
         text = text.replace("</head>", analytics_loader + "\n</head>", 1)
     if 'id="analytics-consent"' not in text:
@@ -77,4 +86,4 @@ text = text.replace(
 )
 privacy.write_text(text, encoding="utf-8")
 
-print(f"Post-build complete: GA4 {GA_ID} with explicit analytics consent")
+print(f"Post-build complete: GA4 {GA_ID}, consent enabled, assets v={ASSET_VERSION}")
