@@ -32,6 +32,7 @@ jobs:
           python expand_tools_v2.py
           python postbuild.py
           node --check assets/app.js
+          python validate_build.py
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
