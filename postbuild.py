@@ -4,10 +4,15 @@ import os
 ROOT = Path(__file__).resolve().parent
 SITE_URL = os.environ.get("SITE_URL", "").rstrip("/")
 GA_ID = os.environ.get("GA_MEASUREMENT_ID", "").strip()
+ADSENSE_CLIENT = os.environ.get("ADSENSE_CLIENT", "").strip()
 ASSET_VERSION = (os.environ.get("GITHUB_SHA", "") or "dev")[:12]
 
 if not GA_ID:
     raise SystemExit("GA_MEASUREMENT_ID is required")
+if not ADSENSE_CLIENT or not ADSENSE_CLIENT.startswith("ca-pub-"):
+    raise SystemExit("ADSENSE_CLIENT must be a ca-pub-* identifier")
+
+adsense_loader = f'''<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={ADSENSE_CLIENT}" crossorigin="anonymous"></script>'''
 
 analytics_loader = f'''<script>
 (function() {{
@@ -68,6 +73,8 @@ for path in ROOT.rglob("*.html"):
     text = text.replace('src="assets/app.js"', f'src="assets/app.js?v={ASSET_VERSION}"')
     text = text.replace('src="../assets/app.js"', f'src="../assets/app.js?v={ASSET_VERSION}"')
 
+    if "pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" not in text:
+        text = text.replace("</head>", adsense_loader + "\n</head>", 1)
     if "googletagmanager.com/gtag/js" not in text:
         text = text.replace("</head>", analytics_loader + "\n</head>", 1)
     if 'id="analytics-consent"' not in text:
@@ -82,8 +89,18 @@ if 'rel="canonical"' not in text and SITE_URL:
 
 text = text.replace(
     '<h2>Cookies e publicidade</h2><p>Esta versão não inclui anúncios, cookies de publicidade ou ferramentas de análise de terceiros. Se isso mudar, esta página deverá ser atualizada antes da ativação desses serviços.</p>',
-    '<h2>Analytics, cookies e publicidade</h2><p>O site utiliza o Google Analytics 4 somente depois que o visitante aceita a coleta de métricas. A escolha é armazenada localmente no navegador. O Analytics pode registrar informações de navegação, como páginas visitadas e interações gerais, mas os valores e textos digitados nas ferramentas não são enviados pelo código das ferramentas ao Google Analytics.</p><p>Esta versão não inclui anúncios nem cookies de publicidade.</p>'
+    '<h2>Analytics, cookies e publicidade</h2><p>O site utiliza o Google Analytics 4 somente depois que o visitante aceita a coleta de métricas. A escolha é armazenada localmente no navegador. O Analytics pode registrar informações de navegação, como páginas visitadas e interações gerais, mas os valores e textos digitados nas ferramentas não são enviados pelo código das ferramentas ao Google Analytics.</p><p>O site está integrado ao Google AdSense para verificação, revisão e eventual exibição de anúncios. O código do AdSense pode carregar recursos do Google relacionados à publicidade. Antes da ativação de anúncios em regiões que exigem consentimento específico, a gestão de consentimento será configurada conforme os requisitos aplicáveis do Google.</p>'
+)
+text = text.replace(
+    '<p>Esta versão não inclui anúncios nem cookies de publicidade.</p>',
+    '<p>O site está integrado ao Google AdSense para verificação, revisão e eventual exibição de anúncios. O código do AdSense pode carregar recursos do Google relacionados à publicidade. Antes da ativação de anúncios em regiões que exigem consentimento específico, a gestão de consentimento será configurada conforme os requisitos aplicáveis do Google.</p>'
 )
 privacy.write_text(text, encoding="utf-8")
 
-print(f"Post-build complete: GA4 {GA_ID}, consent enabled, assets v={ASSET_VERSION}")
+publisher_id = ADSENSE_CLIENT.removeprefix("ca-")
+(ROOT / "ads.txt").write_text(
+    f"google.com, {publisher_id}, DIRECT, f08c47fec0942fa0\n",
+    encoding="utf-8",
+)
+
+print(f"Post-build complete: GA4 {GA_ID}, AdSense {ADSENSE_CLIENT}, consent enabled, assets v={ASSET_VERSION}")
