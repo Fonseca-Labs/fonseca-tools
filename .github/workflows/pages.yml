@@ -30,6 +30,7 @@ jobs:
           GA_MEASUREMENT_ID: G-FSGL7Y81H5
         run: |
           python expand_tools_v2.py
+          python seo_enhance.py
           python postbuild.py
           node --check assets/app.js
           python validate_build.py
