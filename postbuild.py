@@ -89,12 +89,15 @@ if 'rel="canonical"' not in text and SITE_URL:
 
 text = text.replace(
     '<h2>Cookies e publicidade</h2><p>Esta versão não inclui anúncios, cookies de publicidade ou ferramentas de análise de terceiros. Se isso mudar, esta página deverá ser atualizada antes da ativação desses serviços.</p>',
-    '<h2>Analytics, cookies e publicidade</h2><p>O site utiliza o Google Analytics 4 somente depois que o visitante aceita a coleta de métricas. A escolha é armazenada localmente no navegador. O Analytics pode registrar informações de navegação, como páginas visitadas e interações gerais, mas os valores e textos digitados nas ferramentas não são enviados pelo código das ferramentas ao Google Analytics.</p><p>O site está integrado ao Google AdSense para verificação, revisão e eventual exibição de anúncios. O código do AdSense pode carregar recursos do Google relacionados à publicidade. Antes da ativação de anúncios em regiões que exigem consentimento específico, a gestão de consentimento será configurada conforme os requisitos aplicáveis do Google.</p>'
+    '<h2>Analytics, cookies e publicidade</h2><p>O site utiliza o Google Analytics 4 somente depois que o visitante aceita a coleta de métricas. A escolha é armazenada localmente no navegador. O Analytics pode registrar informações de navegação, como páginas visitadas e interações gerais, mas os valores e textos digitados nas ferramentas não são enviados pelo código das ferramentas ao Google Analytics.</p><p>Esta versão não inclui anúncios nem cookies de publicidade.</p>'
 )
-text = text.replace(
-    '<p>Esta versão não inclui anúncios nem cookies de publicidade.</p>',
-    '<p>O site está integrado ao Google AdSense para verificação, revisão e eventual exibição de anúncios. O código do AdSense pode carregar recursos do Google relacionados à publicidade. Antes da ativação de anúncios em regiões que exigem consentimento específico, a gestão de consentimento será configurada conforme os requisitos aplicáveis do Google.</p>'
+
+adsense_disclosure = (
+    'O site está integrado ao Google AdSense para verificação, revisão e eventual exibição de anúncios. '
+    'O código do AdSense pode carregar recursos do Google relacionados à publicidade. '
+    'Antes da ativação de anúncios em regiões que exigem consentimento específico, a gestão de consentimento será configurada conforme os requisitos aplicáveis do Google.'
 )
+text = text.replace('Esta versão não inclui anúncios nem cookies de publicidade.', adsense_disclosure)
 privacy.write_text(text, encoding="utf-8")
 
 publisher_id = ADSENSE_CLIENT.removeprefix("ca-")
