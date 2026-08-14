@@ -26,7 +26,7 @@ jobs:
 
       - name: Build static site with public URL
         env:
-          SITE_URL: https://fonseca-labs.github.io/fonseca-tools
+          SITE_URL: https://fonsecatools.com.br
           GA_MEASUREMENT_ID: G-FSGL7Y81H5
         run: |
           python expand_tools_v2.py
