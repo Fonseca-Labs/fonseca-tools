@@ -98,6 +98,21 @@ adsense_disclosure = (
     'Antes da ativação de anúncios em regiões que exigem consentimento específico, a gestão de consentimento será configurada conforme os requisitos aplicáveis do Google.'
 )
 text = text.replace('Esta versão não inclui anúncios nem cookies de publicidade.', adsense_disclosure)
+
+if "Google AdSense" not in text:
+    disclosure = (
+        '<section class="wrap narrow info-card" data-adsense-disclosure>'
+        '<h2>Publicidade e Google AdSense</h2>'
+        f'<p>{adsense_disclosure}</p>'
+        '</section>'
+    )
+    if "</main>" in text:
+        text = text.replace("</main>", disclosure + "</main>", 1)
+    elif "</body>" in text:
+        text = text.replace("</body>", disclosure + "</body>", 1)
+    else:
+        raise SystemExit("Privacy page has no AdSense disclosure insertion point")
+
 privacy.write_text(text, encoding="utf-8")
 
 publisher_id = ADSENSE_CLIENT.removeprefix("ca-")
