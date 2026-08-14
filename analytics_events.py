@@ -36,22 +36,23 @@ if "tool_calculation_success" not in app:
 APP.write_text(app, encoding="utf-8")
 
 privacy = PRIVACY.read_text(encoding="utf-8")
-old = (
-    '<h2>Analytics, cookies e publicidade</h2><p>O site utiliza o Google Analytics 4 somente depois que o visitante aceita a coleta de métricas. '
-    'A escolha é armazenada localmente no navegador. O Analytics pode registrar informações de navegação, como páginas visitadas e interações gerais, '
-    'mas os valores e textos digitados nas ferramentas não são enviados pelo código das ferramentas ao Google Analytics.</p><p>Esta versão não inclui anúncios nem cookies de publicidade.</p>'
-)
-new = (
-    '<h2>Analytics, cookies e publicidade</h2><p>O site utiliza o Google Analytics 4 somente depois que o visitante aceita a coleta de métricas. '
-    'A escolha é armazenada localmente no navegador. Além das informações gerais de navegação, o site pode registrar eventos de uso das ferramentas, '
-    'como cálculo concluído ou tentativa com erro, identificando apenas o nome da ferramenta, sua categoria e a ação utilizada.</p>'
-    '<p>Os números, datas, textos digitados e os resultados calculados não são enviados pelo código das ferramentas ao Google Analytics. '
-    'Esta versão não inclui anúncios nem cookies de publicidade.</p>'
-)
-if old in privacy:
-    privacy = privacy.replace(old, new, 1)
-elif "eventos de uso das ferramentas" not in privacy:
-    raise SystemExit("Privacy analytics paragraph anchor not found")
+if "eventos de uso das ferramentas" not in privacy:
+    disclosure = (
+        '<section class="wrap narrow info-card" data-analytics-disclosure>'
+        '<h2>Analytics e uso das ferramentas</h2>'
+        '<p>O Google Analytics 4 é carregado somente depois que o visitante aceita a coleta de métricas. '
+        'Além das informações gerais de navegação, o site pode registrar eventos de uso das ferramentas, '
+        'como cálculo concluído ou tentativa com erro, identificando apenas o nome da ferramenta, sua categoria e a ação utilizada.</p>'
+        '<p>Os números, datas, textos digitados e os resultados calculados não são enviados pelo código das ferramentas ao Google Analytics.</p>'
+        '</section>'
+    )
+    if "</main>" in privacy:
+        privacy = privacy.replace("</main>", disclosure + "</main>", 1)
+    elif "</body>" in privacy:
+        privacy = privacy.replace("</body>", disclosure + "</body>", 1)
+    else:
+        raise SystemExit("Privacy page has no insertion point")
+
 PRIVACY.write_text(privacy, encoding="utf-8")
 
 print("Analytics events enabled: success/error, metadata only, consent-gated")
