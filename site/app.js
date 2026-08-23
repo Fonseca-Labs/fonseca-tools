@@ -1,80 +1,35 @@
 const CONFIG = {
+  apiBase: 'https://ia-over-production.up.railway.app',
   productName: 'Grupo Premium',
   basePrice: 150,
-  trialDays: 3,
-  currency: 'BRL',
-  coupons: {
-    FONSECA5: { type: 'percent', value: 5, label: '5% de desconto na mensalidade' }
-  }
+  currency: 'BRL'
 };
 
-let activeCoupon = null;
-let paymentMethod = 'pix';
+let activeCoupon = '';
+let discountPercent = 0;
+let currentTotal = CONFIG.basePrice;
+let modalAction = null;
 
+const $ = (selector) => document.querySelector(selector);
 const money = (value) => new Intl.NumberFormat('pt-BR', {
   style: 'currency',
   currency: CONFIG.currency
-}).format(value);
+}).format(Number(value || 0));
 
-function getDiscount() {
-  if (!activeCoupon) return 0;
-  const coupon = CONFIG.coupons[activeCoupon];
-  return coupon ? CONFIG.basePrice * (coupon.value / 100) : 0;
-}
-
-function updateSummary() {
-  const discount = getDiscount();
-  const total = Math.max(0, CONFIG.basePrice - discount);
-  document.querySelector('#subtotal').textContent = money(CONFIG.basePrice);
-  document.querySelector('#total').textContent = money(total);
-  const line = document.querySelector('#discountLine');
-  if (discount > 0) {
-    line.classList.remove('hidden');
-    document.querySelector('#discountValue').textContent = `- ${money(discount)}`;
-  } else {
-    line.classList.add('hidden');
-  }
-}
-
-function showCouponFeedback(message, type = '') {
-  const el = document.querySelector('#couponFeedback');
-  el.textContent = message;
-  el.className = `coupon-feedback ${type}`;
-}
-
-function applyCoupon() {
-  const input = document.querySelector('#couponInput');
-  const code = input.value.trim().toUpperCase();
-  const coupon = CONFIG.coupons[code];
-  if (!code) return showCouponFeedback('Digite um cupom para aplicar.', 'error');
-  if (!coupon) {
-    activeCoupon = null;
-    document.querySelector('#couponApplied').classList.add('hidden');
-    showCouponFeedback('Cupom inválido ou indisponível.', 'error');
-    updateSummary();
-    return;
-  }
-  activeCoupon = code;
-  document.querySelector('#couponCodeLabel').textContent = code;
-  document.querySelector('#couponDescription').textContent = coupon.label;
-  document.querySelector('#couponApplied').classList.remove('hidden');
-  showCouponFeedback('Cupom aplicado com sucesso.', 'ok');
-  updateSummary();
-}
-
-function removeCoupon() {
-  activeCoupon = null;
-  document.querySelector('#couponInput').value = '';
-  document.querySelector('#couponApplied').classList.add('hidden');
-  showCouponFeedback('Cupom removido.');
-  updateSummary();
+function buyerPayload() {
+  return {
+    name: $('#name').value.trim(),
+    email: $('#email').value.trim(),
+    phone: $('#phone').value.trim(),
+    cpf: $('#cpf').value.trim()
+  };
 }
 
 function validateBuyer() {
   const required = ['name', 'email', 'phone', 'cpf'];
   let firstInvalid = null;
   required.forEach((id) => {
-    const input = document.querySelector(`#${id}`);
+    const input = $(`#${id}`);
     const invalid = !input.value.trim();
     input.style.borderColor = invalid ? '#ef4444' : '';
     if (invalid && !firstInvalid) firstInvalid = input;
@@ -87,59 +42,272 @@ function validateBuyer() {
   return true;
 }
 
-function showModal(title, text) {
-  document.querySelector('#modalTitle').textContent = title;
-  document.querySelector('#modalText').textContent = text;
-  document.querySelector('#modal').classList.remove('hidden');
+function updateSummary() {
+  const discount = Math.max(0, CONFIG.basePrice - currentTotal);
+  $('#subtotal').textContent = money(CONFIG.basePrice);
+  $('#total').textContent = money(currentTotal);
+  const line = $('#discountLine');
+  if (discount > 0) {
+    line.classList.remove('hidden');
+    $('#discountValue').textContent = `- ${money(discount)}`;
+  } else {
+    line.classList.add('hidden');
+  }
+}
+
+function showCouponFeedback(message, type = '') {
+  const el = $('#couponFeedback');
+  el.textContent = message;
+  el.className = `coupon-feedback ${type}`;
+}
+
+function setBusy(button, busy, busyText) {
+  if (!button) return;
+  if (busy) {
+    button.dataset.originalText = button.textContent;
+    button.disabled = true;
+    button.textContent = busyText;
+  } else {
+    button.disabled = false;
+    button.textContent = button.dataset.originalText || button.textContent;
+  }
+}
+
+async function api(path, options = {}) {
+  const response = await fetch(`${CONFIG.apiBase}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    }
+  });
+  let data = {};
+  try {
+    data = await response.json();
+  } catch (_) {
+    data = {};
+  }
+  if (!response.ok) {
+    throw new Error(data.error || data.message || 'Não foi possível concluir a operação.');
+  }
+  return data;
+}
+
+function showModal(title, text, action = null) {
+  $('#modalTitle').textContent = title;
+  $('#modalText').textContent = text;
+  modalAction = action;
+  const button = $('#modalOk');
+  button.textContent = action?.label || 'Entendi';
+  $('#modal').classList.remove('hidden');
 }
 
 function closeModal() {
-  document.querySelector('#modal').classList.add('hidden');
+  $('#modal').classList.add('hidden');
+  modalAction = null;
+  $('#modalOk').textContent = 'Entendi';
 }
 
-document.querySelector('#startTrial').addEventListener('click', () => {
+async function applyCoupon() {
+  const button = $('#applyCoupon');
+  const input = $('#couponInput');
+  const code = input.value.trim().toUpperCase();
+  if (!code) {
+    showCouponFeedback('Digite um cupom para aplicar.', 'error');
+    return;
+  }
+  setBusy(button, true, 'Validando...');
+  try {
+    const data = await api('/checkout/coupon/validate', {
+      method: 'POST',
+      body: JSON.stringify({ coupon: code })
+    });
+    activeCoupon = data.coupon || code;
+    discountPercent = Number(data.discount_percent || 0);
+    currentTotal = Number(data.amount || CONFIG.basePrice);
+    $('#couponCodeLabel').textContent = activeCoupon;
+    $('#couponDescription').textContent = `${discountPercent}% de desconto na mensalidade`;
+    $('#couponApplied').classList.remove('hidden');
+    showCouponFeedback('Cupom aplicado com sucesso.', 'ok');
+    updateSummary();
+  } catch (error) {
+    activeCoupon = '';
+    discountPercent = 0;
+    currentTotal = CONFIG.basePrice;
+    $('#couponApplied').classList.add('hidden');
+    showCouponFeedback(error.message || 'Cupom inválido ou indisponível.', 'error');
+    updateSummary();
+  } finally {
+    setBusy(button, false);
+  }
+}
+
+function removeCoupon() {
+  activeCoupon = '';
+  discountPercent = 0;
+  currentTotal = CONFIG.basePrice;
+  $('#couponInput').value = '';
+  $('#couponApplied').classList.add('hidden');
+  showCouponFeedback('Cupom removido.');
+  updateSummary();
+}
+
+async function startTrial() {
   if (!validateBuyer()) return;
+  const button = $('#startTrial');
+  setBusy(button, true, 'Preparando seu acesso...');
+  try {
+    const data = await api('/checkout/trial/request', {
+      method: 'POST',
+      body: JSON.stringify(buyerPayload())
+    });
+    if (data.public_token) {
+      localStorage.setItem('checkout_public_token', data.public_token);
+    }
+    if (!data.eligible) {
+      showModal(
+        'Teste grátis já utilizado',
+        data.message || 'Este cadastro já utilizou os 3 dias grátis. Para voltar ao Consenso, faça a assinatura mensal.',
+        { label: 'Ir para pagamento', scrollTo: '#pagamento' }
+      );
+      return;
+    }
+    if (!data.telegram_url) {
+      throw new Error(data.message || 'Não foi possível conectar ao Telegram agora.');
+    }
+    window.location.href = data.telegram_url;
+  } catch (error) {
+    showModal('Não foi possível iniciar o teste', error.message || 'Tente novamente em instantes.');
+  } finally {
+    setBusy(button, false);
+  }
+}
+
+async function startPurchase() {
+  if (!validateBuyer()) return;
+  const button = $('#finishPurchase');
+  setBusy(button, true, 'Abrindo Mercado Pago...');
+  try {
+    const data = await api('/checkout/purchase', {
+      method: 'POST',
+      body: JSON.stringify({ ...buyerPayload(), coupon: activeCoupon })
+    });
+    if (data.public_token) {
+      localStorage.setItem('checkout_public_token', data.public_token);
+    }
+    if (data.telegram_connect_url) {
+      localStorage.setItem('checkout_telegram_connect_url', data.telegram_connect_url);
+    }
+    if (!data.checkout_url) {
+      throw new Error('O Mercado Pago não retornou o checkout da assinatura.');
+    }
+    window.location.href = data.checkout_url;
+  } catch (error) {
+    showModal('Pagamento indisponível', error.message || 'Não foi possível abrir o Mercado Pago.');
+  } finally {
+    setBusy(button, false);
+  }
+}
+
+async function getFreshTelegramLink(publicToken) {
+  try {
+    const data = await api(`/checkout/telegram-link/${encodeURIComponent(publicToken)}`, {
+      method: 'POST',
+      body: '{}'
+    });
+    if (data.telegram_connect_url) {
+      localStorage.setItem('checkout_telegram_connect_url', data.telegram_connect_url);
+      return data.telegram_connect_url;
+    }
+  } catch (_) {
+    // The stored link may still be valid; fall back to it below.
+  }
+  return localStorage.getItem('checkout_telegram_connect_url') || '';
+}
+
+async function handlePaymentReturn() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('payment') !== 'return') return;
+
+  const publicToken = localStorage.getItem('checkout_public_token') || '';
+  if (!publicToken) {
+    showModal(
+      'Retorno do Mercado Pago',
+      'Seu pagamento está sendo processado. Se precisar vincular o Telegram, volte ao checkout usando o mesmo cadastro.'
+    );
+    return;
+  }
+
+  let status = null;
+  try {
+    status = await api(`/checkout/status/${encodeURIComponent(publicToken)}`, { method: 'GET' });
+  } catch (_) {
+    status = null;
+  }
+
+  const telegramUrl = await getFreshTelegramLink(publicToken);
+  const approved = status?.access_kind === 'paid' && status?.access_status === 'active';
+  const linked = Boolean(status?.telegram_linked);
+
+  if (approved && linked) {
+    showModal(
+      'Pagamento confirmado',
+      'Seu acesso pago está ativo. O bot enviará o convite do Consenso para a conta do Telegram vinculada.'
+    );
+    return;
+  }
+
+  if (telegramUrl) {
+    showModal(
+      approved ? 'Pagamento confirmado' : 'Pagamento em confirmação',
+      approved
+        ? 'Pagamento aprovado. Vincule agora seu Telegram para receber o acesso ao Consenso.'
+        : 'Vincule seu Telegram agora. Assim que o Mercado Pago confirmar a cobrança, o bot libera o Consenso automaticamente.',
+      { label: 'Vincular Telegram', url: telegramUrl }
+    );
+    return;
+  }
+
   showModal(
-    'Teste grátis de 3 dias',
-    'A tela já está pronta para o fluxo de trial. Falta conectar o backend ao Telegram para validar se este CPF/Telegram já usou o teste, registrar as 72 horas e gerar o acesso individual ao grupo.'
+    approved ? 'Pagamento confirmado' : 'Pagamento em confirmação',
+    approved
+      ? 'Seu pagamento foi aprovado. Se o acesso não aparecer no Telegram, volte ao checkout usando o mesmo cadastro.'
+      : 'O Mercado Pago ainda está confirmando a cobrança. Seu acesso será atualizado automaticamente.'
   );
-});
+}
 
-document.querySelector('#applyCoupon').addEventListener('click', applyCoupon);
-document.querySelector('#couponInput').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') applyCoupon();
+$('#startTrial').addEventListener('click', startTrial);
+$('#applyCoupon').addEventListener('click', applyCoupon);
+$('#couponInput').addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') applyCoupon();
 });
-document.querySelector('#removeCoupon').addEventListener('click', removeCoupon);
-
-document.querySelectorAll('.payment-tab').forEach((button) => {
-  button.addEventListener('click', () => {
-    paymentMethod = button.dataset.payment;
-    document.querySelectorAll('.payment-tab').forEach((b) => b.classList.toggle('active', b === button));
-    document.querySelectorAll('.payment-content').forEach((content) => content.classList.remove('active'));
-    document.querySelector(`#payment-${paymentMethod}`).classList.add('active');
-  });
-});
+$('#removeCoupon').addEventListener('click', removeCoupon);
+$('#finishPurchase').addEventListener('click', startPurchase);
 
 document.querySelectorAll('.step').forEach((button) => {
   button.addEventListener('click', () => {
-    document.querySelector(`#${button.dataset.stepTarget}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
-    document.querySelectorAll('.step').forEach((b) => b.classList.toggle('active', b === button));
+    const target = document.querySelector(`#${button.dataset.stepTarget}`);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.step').forEach((item) => item.classList.toggle('active', item === button));
   });
 });
 
-document.querySelector('#finishPurchase').addEventListener('click', () => {
-  if (!validateBuyer()) return;
-  const total = Math.max(0, CONFIG.basePrice - getDiscount());
-  showModal(
-    'Pagamento de 30 dias',
-    `A página está preparada para criar a assinatura de ${money(total)} no Mercado Pago. Assim que o backend público for conectado, este botão abrirá o checkout seguro do Mercado Pago.`
-  );
+$('#closeModal').addEventListener('click', closeModal);
+$('#modalOk').addEventListener('click', () => {
+  const action = modalAction;
+  closeModal();
+  if (!action) return;
+  if (action.url) {
+    window.location.href = action.url;
+    return;
+  }
+  if (action.scrollTo) {
+    document.querySelector(action.scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 });
-
-document.querySelector('#closeModal').addEventListener('click', closeModal);
-document.querySelector('#modalOk').addEventListener('click', closeModal);
-document.querySelector('#modal').addEventListener('click', (e) => {
-  if (e.target.id === 'modal') closeModal();
+$('#modal').addEventListener('click', (event) => {
+  if (event.target.id === 'modal') closeModal();
 });
 
 updateSummary();
+handlePaymentReturn();
