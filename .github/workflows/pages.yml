@@ -1,4 +1,4 @@
-name: Deploy GitHub Pages
+name: Deploy Checkout
 
 on:
   push:
@@ -24,29 +24,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Build static site with public URL
-        env:
-          SITE_URL: https://fonsecatools.com.br
-          GA_MEASUREMENT_ID: G-FSGL7Y81H5
-          ADSENSE_CLIENT: ca-pub-2932363909264829
-        run: |
-          python expand_tools_v2.py
-          python seo_enhance.py
-          python architecture_enhance.py
-          python analytics_events.py
-          python postbuild.py
-          node --check assets/app.js
-          python validate_build.py
-          python validate_analytics.py
-          python validate_adsense.py
-
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload Pages artifact
+      - name: Upload checkout
         uses: actions/upload-pages-artifact@v4
         with:
-          path: '.'
+          path: ./site
 
       - name: Deploy to GitHub Pages
         id: deployment
