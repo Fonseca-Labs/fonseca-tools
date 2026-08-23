@@ -1,11 +1,10 @@
 const CONFIG = {
-  productName: 'Acesso Premium',
-  basePrice: 297,
+  productName: 'Grupo Premium',
+  basePrice: 150,
+  trialDays: 3,
   currency: 'BRL',
   coupons: {
-    BEMVINDO10: { type: 'percent', value: 10, label: '10% de desconto' },
-    VIP50: { type: 'fixed', value: 50, label: 'R$ 50 de desconto' },
-    PREMIUM15: { type: 'percent', value: 15, label: '15% de desconto' }
+    FONSECA5: { type: 'percent', value: 5, label: '5% de desconto na mensalidade' }
   }
 };
 
@@ -20,18 +19,14 @@ const money = (value) => new Intl.NumberFormat('pt-BR', {
 function getDiscount() {
   if (!activeCoupon) return 0;
   const coupon = CONFIG.coupons[activeCoupon];
-  if (!coupon) return 0;
-  if (coupon.type === 'percent') return CONFIG.basePrice * (coupon.value / 100);
-  return Math.min(coupon.value, CONFIG.basePrice);
+  return coupon ? CONFIG.basePrice * (coupon.value / 100) : 0;
 }
 
 function updateSummary() {
   const discount = getDiscount();
   const total = Math.max(0, CONFIG.basePrice - discount);
-
   document.querySelector('#subtotal').textContent = money(CONFIG.basePrice);
   document.querySelector('#total').textContent = money(total);
-
   const line = document.querySelector('#discountLine');
   if (discount > 0) {
     line.classList.remove('hidden');
@@ -51,12 +46,7 @@ function applyCoupon() {
   const input = document.querySelector('#couponInput');
   const code = input.value.trim().toUpperCase();
   const coupon = CONFIG.coupons[code];
-
-  if (!code) {
-    showCouponFeedback('Digite um cupom para aplicar.', 'error');
-    return;
-  }
-
+  if (!code) return showCouponFeedback('Digite um cupom para aplicar.', 'error');
   if (!coupon) {
     activeCoupon = null;
     document.querySelector('#couponApplied').classList.add('hidden');
@@ -64,7 +54,6 @@ function applyCoupon() {
     updateSummary();
     return;
   }
-
   activeCoupon = code;
   document.querySelector('#couponCodeLabel').textContent = code;
   document.querySelector('#couponDescription').textContent = coupon.label;
@@ -98,17 +87,23 @@ function validateBuyer() {
   return true;
 }
 
-function openModal() {
-  const discount = getDiscount();
-  const total = Math.max(0, CONFIG.basePrice - discount);
-  document.querySelector('#modalText').textContent =
-    `Checkout pronto para cobrar ${money(total)} via ${paymentMethod === 'pix' ? 'Pix' : 'cartão'}. A cobrança real entra assim que conectarmos o provedor de pagamento.`;
+function showModal(title, text) {
+  document.querySelector('#modalTitle').textContent = title;
+  document.querySelector('#modalText').textContent = text;
   document.querySelector('#modal').classList.remove('hidden');
 }
 
 function closeModal() {
   document.querySelector('#modal').classList.add('hidden');
 }
+
+document.querySelector('#startTrial').addEventListener('click', () => {
+  if (!validateBuyer()) return;
+  showModal(
+    'Teste grátis de 3 dias',
+    'A tela já está pronta para o fluxo de trial. Falta conectar o backend ao Telegram para validar se este CPF/Telegram já usou o teste, registrar as 72 horas e gerar o acesso individual ao grupo.'
+  );
+});
 
 document.querySelector('#applyCoupon').addEventListener('click', applyCoupon);
 document.querySelector('#couponInput').addEventListener('keydown', (e) => {
@@ -127,15 +122,18 @@ document.querySelectorAll('.payment-tab').forEach((button) => {
 
 document.querySelectorAll('.step').forEach((button) => {
   button.addEventListener('click', () => {
-    const target = document.querySelector(`#${button.dataset.stepTarget}`);
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelector(`#${button.dataset.stepTarget}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
     document.querySelectorAll('.step').forEach((b) => b.classList.toggle('active', b === button));
   });
 });
 
 document.querySelector('#finishPurchase').addEventListener('click', () => {
   if (!validateBuyer()) return;
-  openModal();
+  const total = Math.max(0, CONFIG.basePrice - getDiscount());
+  showModal(
+    'Pagamento de 30 dias',
+    `A página está preparada para cobrar ${money(total)} via ${paymentMethod === 'pix' ? 'Pix' : 'cartão'}. Falta conectar o provedor de pagamento; após a confirmação, o backend manterá ou liberará o usuário no Telegram por 30 dias.`
+  );
 });
 
 document.querySelector('#closeModal').addEventListener('click', closeModal);

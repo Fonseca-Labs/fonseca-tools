@@ -4,9 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0b0d12" />
-  <title>Checkout | Fonsequinha</title>
-  <meta name="description" content="Checkout seguro para acesso premium." />
+  <title>Acesso Telegram | Fonsequinha</title>
+  <meta name="description" content="Teste grátis de 3 dias e acesso mensal ao Telegram Fonsequinha." />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="trial.css" />
 </head>
 <body>
   <header class="topbar">
@@ -14,85 +15,81 @@
       <div class="brand-mark">F</div>
       <div>
         <div class="brand">FONSEQUINHA</div>
-        <div class="brand-sub">Checkout seguro</div>
+        <div class="brand-sub">Acesso Premium</div>
       </div>
     </div>
-    <div class="secure-chip" aria-label="Ambiente seguro">
-      <span class="lock">●</span> Ambiente seguro
-    </div>
+    <div class="secure-chip"><span class="lock">●</span> Ambiente seguro</div>
   </header>
 
   <main class="checkout-shell">
     <section class="checkout-main">
-      <div class="eyebrow">FINALIZE SUA COMPRA</div>
-      <h1>Acesso Premium</h1>
-      <p class="lead">Preencha seus dados, escolha a forma de pagamento e conclua em poucos segundos.</p>
+      <div class="eyebrow">ACESSO AO TELEGRAM</div>
+      <h1>3 dias grátis. Depois, você decide.</h1>
+      <p class="lead">Use o grupo Premium por 72 horas sem pagar. O teste é liberado apenas uma vez por pessoa. Depois disso, o acesso mensal custa R$ 150 por 30 dias.</p>
 
-      <nav class="steps" aria-label="Etapas do checkout">
+      <nav class="steps" aria-label="Etapas">
         <button class="step active" data-step-target="dados"><span>1</span> Dados</button>
-        <button class="step" data-step-target="desconto"><span>2</span> Desconto</button>
-        <button class="step" data-step-target="pagamento"><span>3</span> Pagamento</button>
+        <button class="step" data-step-target="teste"><span>2</span> Teste grátis</button>
+        <button class="step" data-step-target="desconto"><span>3</span> Desconto</button>
+        <button class="step" data-step-target="pagamento"><span>4</span> Pagamento</button>
       </nav>
 
       <section class="panel" id="dados">
         <div class="panel-head">
-          <div>
-            <div class="panel-kicker">01</div>
-            <h2>Seus dados</h2>
-          </div>
+          <div><div class="panel-kicker">01</div><h2>Seus dados</h2></div>
           <div class="status-dot">Obrigatório</div>
         </div>
         <div class="form-grid">
-          <label class="field span-2">
-            <span>Nome completo</span>
-            <input id="name" autocomplete="name" placeholder="Digite seu nome" />
-          </label>
-          <label class="field">
-            <span>E-mail</span>
-            <input id="email" type="email" autocomplete="email" placeholder="voce@email.com" />
-          </label>
-          <label class="field">
-            <span>WhatsApp</span>
-            <input id="phone" inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000" />
-          </label>
-          <label class="field span-2">
-            <span>CPF</span>
-            <input id="cpf" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" />
-          </label>
+          <label class="field span-2"><span>Nome completo</span><input id="name" autocomplete="name" placeholder="Digite seu nome" /></label>
+          <label class="field"><span>E-mail</span><input id="email" type="email" autocomplete="email" placeholder="voce@email.com" /></label>
+          <label class="field"><span>WhatsApp</span><input id="phone" inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000" /></label>
+          <label class="field span-2"><span>CPF</span><input id="cpf" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" /></label>
         </div>
+      </section>
+
+      <section class="panel trial-panel" id="teste">
+        <div class="panel-head">
+          <div><div class="panel-kicker">02</div><h2>Teste grátis por 3 dias</h2></div>
+          <div class="trial-badge">72 horas</div>
+        </div>
+        <div class="trial-box">
+          <div class="trial-icon">3D</div>
+          <div>
+            <strong>Entre no Telegram sem pagar agora</strong>
+            <p>Após validar seus dados e sua conta do Telegram, o acesso é liberado. Se não houver compra ao fim das 72 horas, o acesso é removido automaticamente.</p>
+          </div>
+        </div>
+        <div class="trial-rules">
+          <div>✓ Um único teste grátis por pessoa</div>
+          <div>✓ Segundo acesso somente mediante pagamento</div>
+          <div>✓ Se comprar durante o teste, o acesso continua sem interrupção</div>
+        </div>
+        <button id="startTrial" class="btn trial full">Começar meus 3 dias grátis</button>
       </section>
 
       <section class="panel" id="desconto">
         <div class="panel-head">
-          <div>
-            <div class="panel-kicker">02</div>
-            <h2>Desconto</h2>
-          </div>
-          <div class="coupon-badge">Cupom</div>
+          <div><div class="panel-kicker">03</div><h2>Desconto</h2></div>
+          <div class="coupon-badge">Até 5%</div>
         </div>
-        <p class="panel-copy">Tem um cupom? Digite o código abaixo para aplicar o desconto na hora.</p>
+        <p class="panel-copy">Se você recebeu um cupom, digite abaixo. Os cupons desta mensalidade concedem 5% de desconto.</p>
         <div class="coupon-row">
-          <input id="couponInput" class="coupon-input" placeholder="EX.: BEMVINDO10" autocomplete="off" />
+          <input id="couponInput" class="coupon-input" placeholder="Digite seu cupom" autocomplete="off" />
           <button id="applyCoupon" class="btn secondary">Aplicar cupom</button>
         </div>
         <div id="couponFeedback" class="coupon-feedback" aria-live="polite"></div>
         <div id="couponApplied" class="coupon-applied hidden">
-          <div>
-            <strong id="couponCodeLabel"></strong>
-            <span id="couponDescription"></span>
-          </div>
+          <div><strong id="couponCodeLabel"></strong><span id="couponDescription"></span></div>
           <button id="removeCoupon" class="text-btn">Remover</button>
         </div>
       </section>
 
       <section class="panel" id="pagamento">
         <div class="panel-head">
-          <div>
-            <div class="panel-kicker">03</div>
-            <h2>Pagamento</h2>
-          </div>
-          <div class="status-dot">Seguro</div>
+          <div><div class="panel-kicker">04</div><h2>Comprar 30 dias de acesso</h2></div>
+          <div class="status-dot">R$ 150/mês</div>
         </div>
+        <p class="panel-copy">A compra libera 30 dias de acesso. Quando esse período terminar, uma nova mensalidade renova o acesso.</p>
 
         <div class="payment-tabs" role="tablist">
           <button class="payment-tab active" data-payment="pix" role="tab">Pix <span>aprovação rápida</span></button>
@@ -100,13 +97,7 @@
         </div>
 
         <div class="payment-content active" id="payment-pix">
-          <div class="pix-box">
-            <div class="pix-icon">PIX</div>
-            <div>
-              <strong>Pague com Pix</strong>
-              <p>Ao finalizar, o QR Code e o código Pix serão gerados para pagamento.</p>
-            </div>
-          </div>
+          <div class="pix-box"><div class="pix-icon">PIX</div><div><strong>Pague com Pix</strong><p>Ao finalizar, será gerado o Pix e, após a confirmação, o acesso fica válido por 30 dias.</p></div></div>
         </div>
 
         <div class="payment-content" id="payment-card">
@@ -119,41 +110,27 @@
         </div>
       </section>
 
-      <button id="finishPurchase" class="btn primary full">Finalizar compra</button>
-      <div class="safety-note">🔒 Seus dados são transmitidos em ambiente seguro. Nenhum dado de cartão deve ser armazenado pelo site.</div>
+      <button id="finishPurchase" class="btn primary full">Comprar 30 dias de acesso</button>
+      <div class="safety-note">🔒 O pagamento real será processado pelo provedor de pagamento; o site não deve armazenar dados do cartão.</div>
     </section>
 
     <aside class="summary-card">
-      <div class="summary-top">
-        <span class="summary-label">RESUMO DO PEDIDO</span>
-        <span class="plan-pill">Premium</span>
-      </div>
+      <div class="summary-top"><span class="summary-label">ACESSO PREMIUM</span><span class="plan-pill">Telegram</span></div>
       <div class="product-card">
         <div class="product-icon">F</div>
-        <div>
-          <strong>Acesso Premium</strong>
-          <p>Assinatura / produto digital</p>
-        </div>
+        <div><strong>Grupo Premium</strong><p>30 dias de acesso ao Telegram</p></div>
       </div>
-
+      <div class="trial-mini"><strong>Primeira vez?</strong><span>3 dias grátis, uma única vez.</span></div>
       <div class="price-lines">
-        <div><span>Subtotal</span><strong id="subtotal">R$ 297,00</strong></div>
-        <div id="discountLine" class="discount-line hidden"><span>Desconto</span><strong id="discountValue">- R$ 0,00</strong></div>
+        <div><span>Mensalidade</span><strong id="subtotal">R$ 150,00</strong></div>
+        <div id="discountLine" class="discount-line hidden"><span>Desconto 5%</span><strong id="discountValue">- R$ 0,00</strong></div>
       </div>
-
-      <div class="total-line">
-        <div>
-          <span>Total</span>
-          <small>valor final</small>
-        </div>
-        <strong id="total">R$ 297,00</strong>
-      </div>
-
+      <div class="total-line"><div><span>Total</span><small>30 dias de acesso</small></div><strong id="total">R$ 150,00</strong></div>
       <div class="benefits">
-        <div>✓ Acesso após confirmação</div>
-        <div>✓ Pagamento via Pix ou cartão</div>
-        <div>✓ Cupom de desconto automático</div>
-        <div>✓ Checkout otimizado para celular</div>
+        <div>✓ 3 dias grátis no primeiro acesso</div>
+        <div>✓ Remoção automática após o trial se não comprar</div>
+        <div>✓ Pagamento libera 30 dias</div>
+        <div>✓ Cupom de 5% quando disponível</div>
       </div>
     </aside>
   </main>
@@ -162,8 +139,8 @@
     <div class="modal-card">
       <button id="closeModal" class="modal-close" aria-label="Fechar">×</button>
       <div class="modal-icon">✓</div>
-      <h3 id="modalTitle">Checkout preparado</h3>
-      <p id="modalText">A interface está pronta. Para gerar uma cobrança real, conecte um provedor de pagamento.</p>
+      <h3 id="modalTitle">Integração em preparação</h3>
+      <p id="modalText"></p>
       <button id="modalOk" class="btn primary full">Entendi</button>
     </div>
   </div>

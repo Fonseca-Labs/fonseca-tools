@@ -1,0 +1,10 @@
+@media(min-width:621px){.steps{grid-template-columns:repeat(4,1fr)}}
+.trial-panel{border-color:#cdebd7;background:linear-gradient(180deg,#ffffff,#fbfffc)}
+.trial-badge{font-size:11px;font-weight:900;border-radius:999px;padding:7px 10px;background:#ecfdf3;color:#167348}
+.trial-box{display:flex;align-items:center;gap:15px;padding:17px;border:1px solid #dbe7df;background:#f8fcf9;border-radius:16px;margin-bottom:14px}
+.trial-icon{width:54px;height:54px;flex:0 0 54px;display:grid;place-items:center;border-radius:14px;background:#111827;color:#fff;font-size:13px;font-weight:900}
+.trial-box strong{font-size:14px}.trial-box p{font-size:13px;line-height:1.5;color:#657267;margin:5px 0 0}
+.trial-rules{font-size:12px;line-height:1.9;color:#55625a;margin:0 2px 15px}
+.btn.trial{background:#157a4b;color:#fff;box-shadow:0 10px 24px rgba(21,122,75,.18)}
+.trial-mini{margin-top:14px;padding:12px 14px;border:1px solid #293241;background:#141a24;border-radius:14px}
+.trial-mini strong,.trial-mini span{display:block}.trial-mini strong{font-size:12px;color:#86efac}.trial-mini span{font-size:11px;color:#9ca3af;margin-top:3px}
