@@ -531,6 +531,21 @@ def health():
     )
 
 
+@app.route("/checkout/coupon/validate", methods=["POST", "OPTIONS"])
+def validate_coupon():
+    if request.method == "OPTIONS":
+        return ("", 204)
+    payload = request.get_json(silent=True) or {}
+    code = str(payload.get("coupon") or "")
+    try:
+        discount_pct, normalized = _coupon_discount(code)
+    except ValueError as exc:
+        return _json_error(str(exc), 400)
+    base = _env_float("MONTHLY_PRICE", 150.0, 1.0, 100000.0)
+    amount = _money(base * (1.0 - discount_pct / 100.0))
+    return jsonify({"valid": True, "coupon": normalized, "discount_percent": discount_pct, "amount": amount})
+
+
 @app.route("/checkout/trial/request", methods=["POST", "OPTIONS"])
 def request_trial():
     if request.method == "OPTIONS":
