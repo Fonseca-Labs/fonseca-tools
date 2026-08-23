@@ -261,6 +261,33 @@ def _telegram_call(method: str, payload: dict[str, Any]) -> dict[str, Any]:
     return dict(result.get("result") or {})
 
 
+_BOT_USERNAME_CACHE = ""
+_TELEGRAM_WEBHOOK_STATE = "not_attempted"
+
+def _bot_username() -> str:
+    global _BOT_USERNAME_CACHE
+    configured = _env("TELEGRAM_BOT_USERNAME").lstrip("@")
+    if configured:
+        return configured
+    if _BOT_USERNAME_CACHE:
+        return _BOT_USERNAME_CACHE
+    info = _telegram_call("getMe", {})
+    _BOT_USERNAME_CACHE = str(info.get("username") or "").lstrip("@")
+    return _BOT_USERNAME_CACHE
+
+def _telegram_webhook_secret() -> str:
+    configured = _env("TELEGRAM_WEBHOOK_SECRET")
+    if configured:
+        return configured
+    return hmac.new(_pii_secret(), b"telegram-webhook-v1", hashlib.sha256).hexdigest()
+
+def _public_backend_url() -> str:
+    configured = _env("PUBLIC_BASE_URL").rstrip("/")
+    if configured:
+        return configured
+    domain = _env("RAILWAY_PUBLIC_DOMAIN")
+    return f"https://{domain}" if domain else ""
+
 def _send_telegram(user_id: str, text: str, *, invite_url: str = "") -> None:
     payload: dict[str, Any] = {
         "chat_id": str(user_id),
@@ -497,6 +524,32 @@ def _record_webhook(
         return cur.rowcount == 1
 
 
+def _ensure_telegram_webhook() -> None:
+    global _TELEGRAM_WEBHOOK_STATE
+    if _env("AUTO_CONFIGURE_TELEGRAM_WEBHOOK", "1").lower() in {"0", "false", "no"}:
+        _TELEGRAM_WEBHOOK_STATE = "disabled"
+        return
+    if not _env("TELEGRAM_BOT_TOKEN"):
+        _TELEGRAM_WEBHOOK_STATE = "missing_token"
+        return
+    base = _public_backend_url()
+    if not base:
+        _TELEGRAM_WEBHOOK_STATE = "missing_public_url"
+        return
+    desired = f"{base}/telegram/webhook"
+    try:
+        info = _telegram_call("getWebhookInfo", {})
+        current = str(info.get("url") or "")
+        if current and current != desired:
+            _TELEGRAM_WEBHOOK_STATE = "conflict_existing_webhook"
+            return
+        if current != desired:
+            _telegram_call("setWebhook", {"url": desired, "secret_token": _telegram_webhook_secret(), "allowed_updates": ["message"], "drop_pending_updates": False})
+        _TELEGRAM_WEBHOOK_STATE = "configured"
+    except Exception as exc:
+        _TELEGRAM_WEBHOOK_STATE = f"error:{type(exc).__name__}"
+
+
 app = Flask(__name__)
 
 
@@ -524,9 +577,9 @@ def health():
             "telegram_ready": bool(
                 _env("TELEGRAM_BOT_TOKEN")
                 and _env("TELEGRAM_CONSENSUS_CHAT_ID")
-                and _env("TELEGRAM_BOT_USERNAME")
             ),
             "mercadopago_ready": bool(_env("MERCADOPAGO_ACCESS_TOKEN")),
+            "telegram_webhook_state": _TELEGRAM_WEBHOOK_STATE,
         }
     )
 
@@ -573,7 +626,10 @@ def request_trial():
             "INSERT INTO trial_tokens(token,user_id,created_at,expires_at) VALUES(?,?,?,?)",
             (token, user["id"], _iso(now), _iso(expires)),
         )
-    username = _env("TELEGRAM_BOT_USERNAME").lstrip("@")
+    try:
+        username = _bot_username()
+    except Exception:
+        username = ""
     if not username:
         return jsonify(
             {
@@ -595,7 +651,7 @@ def request_trial():
 
 @app.route("/telegram/webhook", methods=["POST"])
 def telegram_webhook():
-    expected = _env("TELEGRAM_WEBHOOK_SECRET")
+    expected = _telegram_webhook_secret()
     received = request.headers.get("X-Telegram-Bot-Api-Secret-Token", "")
     if expected and not hmac.compare_digest(expected, received):
         return _json_error("Invalid Telegram webhook secret", 401)
@@ -866,6 +922,7 @@ def _start_worker_once() -> None:
 
 
 _start_worker_once()
+threading.Thread(target=_ensure_telegram_webhook, name="telegram-webhook-setup", daemon=True).start()
 
 
 if __name__ == "__main__":
