@@ -1,0 +1,6 @@
+backend/.packages/
+backend/.venv/
+backend/__pycache__/
+backend/*.sqlite3
+backend/*.sqlite3-*
+.pytest_cache/
