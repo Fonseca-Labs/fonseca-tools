@@ -91,27 +91,17 @@
         </div>
         <p class="panel-copy">A compra libera 30 dias de acesso. Quando esse período terminar, uma nova mensalidade renova o acesso.</p>
 
-        <div class="payment-tabs" role="tablist">
-          <button class="payment-tab active" data-payment="pix" role="tab">Pix <span>aprovação rápida</span></button>
-          <button class="payment-tab" data-payment="card" role="tab">Cartão <span>crédito</span></button>
-        </div>
-
-        <div class="payment-content active" id="payment-pix">
-          <div class="pix-box"><div class="pix-icon">PIX</div><div><strong>Pague com Pix</strong><p>Ao finalizar, será gerado o Pix e, após a confirmação, o acesso fica válido por 30 dias.</p></div></div>
-        </div>
-
-        <div class="payment-content" id="payment-card">
-          <div class="form-grid">
-            <label class="field span-2"><span>Número do cartão</span><input inputmode="numeric" placeholder="0000 0000 0000 0000" /></label>
-            <label class="field"><span>Validade</span><input inputmode="numeric" placeholder="MM/AA" /></label>
-            <label class="field"><span>CVV</span><input inputmode="numeric" placeholder="000" /></label>
-            <label class="field span-2"><span>Nome impresso no cartão</span><input placeholder="COMO NO CARTÃO" /></label>
+        <div class="pix-box payment-provider-box">
+          <div class="pix-icon">MP</div>
+          <div>
+            <strong>Pagamento seguro pelo Mercado Pago</strong>
+            <p>Na próxima etapa você escolhe Pix, cartão ou outro meio disponível diretamente no ambiente do Mercado Pago. Nenhum número de cartão ou CVV é digitado neste site.</p>
           </div>
         </div>
       </section>
 
-      <button id="finishPurchase" class="btn primary full">Comprar 30 dias de acesso</button>
-      <div class="safety-note">🔒 O pagamento real será processado pelo provedor de pagamento; o site não deve armazenar dados do cartão.</div>
+      <button id="finishPurchase" class="btn primary full">Continuar para o Mercado Pago</button>
+      <div class="safety-note">🔒 O pagamento é concluído no ambiente seguro do Mercado Pago. Este site não coleta dados do cartão.</div>
     </section>
 
     <aside class="summary-card">

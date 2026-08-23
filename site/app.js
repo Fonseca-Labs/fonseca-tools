@@ -132,7 +132,7 @@ document.querySelector('#finishPurchase').addEventListener('click', () => {
   const total = Math.max(0, CONFIG.basePrice - getDiscount());
   showModal(
     'Pagamento de 30 dias',
-    `A página está preparada para cobrar ${money(total)} via ${paymentMethod === 'pix' ? 'Pix' : 'cartão'}. Falta conectar o provedor de pagamento; após a confirmação, o backend manterá ou liberará o usuário no Telegram por 30 dias.`
+    `A página está preparada para criar a assinatura de ${money(total)} no Mercado Pago. Assim que o backend público for conectado, este botão abrirá o checkout seguro do Mercado Pago.`
   );
 });
 
