@@ -16,6 +16,38 @@ const money = (value) => new Intl.NumberFormat('pt-BR', {
   currency: CONFIG.currency
 }).format(Number(value || 0));
 
+function formatCpf(value) {
+  const digits = String(value || '').replace(/\D/g, '').slice(0, 11);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
+  if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
+  return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+}
+
+function formatPhone(value) {
+  const digits = String(value || '').replace(/\D/g, '').slice(0, 11);
+  if (!digits) return '';
+  if (digits.length <= 2) return `(${digits}`;
+  const area = digits.slice(0, 2);
+  const number = digits.slice(2);
+  if (number.length <= 4) return `(${area}) ${number}`;
+  if (number.length <= 8) return `(${area}) ${number.slice(0, 4)}-${number.slice(4)}`;
+  return `(${area}) ${number.slice(0, 5)}-${number.slice(5, 9)}`;
+}
+
+function installInputMasks() {
+  const cpf = $('#cpf');
+  const phone = $('#phone');
+  if (cpf) {
+    cpf.maxLength = 14;
+    cpf.addEventListener('input', () => { cpf.value = formatCpf(cpf.value); });
+  }
+  if (phone) {
+    phone.maxLength = 15;
+    phone.addEventListener('input', () => { phone.value = formatPhone(phone.value); });
+  }
+}
+
 function buyerPayload() {
   return {
     name: $('#name').value.trim(),
@@ -309,5 +341,6 @@ $('#modal').addEventListener('click', (event) => {
   if (event.target.id === 'modal') closeModal();
 });
 
+installInputMasks();
 updateSummary();
 handlePaymentReturn();
