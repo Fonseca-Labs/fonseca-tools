@@ -230,6 +230,9 @@ async function startPurchase() {
     if (data.telegram_connect_url) {
       localStorage.setItem('checkout_telegram_connect_url', data.telegram_connect_url);
     }
+    if (data.telegram_link_key) {
+      localStorage.setItem('checkout_telegram_link_key', data.telegram_link_key);
+    }
     if (!data.checkout_url) {
       throw new Error('O Mercado Pago não retornou o checkout da assinatura.');
     }
@@ -242,9 +245,12 @@ async function startPurchase() {
 }
 
 async function getFreshTelegramLink(publicToken) {
+  const linkKey = localStorage.getItem('checkout_telegram_link_key') || '';
+  if (!linkKey) return localStorage.getItem('checkout_telegram_connect_url') || '';
   try {
     const data = await api(`/checkout/telegram-link/${encodeURIComponent(publicToken)}`, {
       method: 'POST',
+      headers: { 'X-Checkout-Link-Key': linkKey },
       body: '{}'
     });
     if (data.telegram_connect_url) {
