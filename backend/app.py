@@ -305,6 +305,16 @@ def _make_invite(user_id: str, label: str) -> str:
     chat_id = _env("TELEGRAM_CONSENSUS_CHAT_ID")
     if not chat_id:
         raise RuntimeError("TELEGRAM_CONSENSUS_CHAT_ID not configured")
+    # Usuário removido manualmente pode permanecer banido; nesse estado o Telegram
+    # não permite reentrada por convite. A limpeza é segura para quem não está banido.
+    _telegram_call(
+        "unbanChatMember",
+        {
+            "chat_id": chat_id,
+            "user_id": int(user_id),
+            "only_if_banned": True,
+        },
+    )
     expire = int(time.time()) + _env_int("TELEGRAM_INVITE_TTL_SECONDS", 900, 60, 86400)
     result = _telegram_call(
         "createChatInviteLink",

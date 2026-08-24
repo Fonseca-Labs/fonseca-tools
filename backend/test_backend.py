@@ -202,3 +202,21 @@ def test_authorized_payment_webhook_grants_30_days(monkeypatch):
     assert expiry is not None
     remaining = expiry - datetime.now(timezone.utc)
     assert timedelta(days=29, hours=23) < remaining <= timedelta(days=30, minutes=1)
+
+
+def test_make_invite_unbans_before_creating_link(monkeypatch):
+    calls = []
+
+    def fake_telegram_call(method, payload):
+        calls.append((method, dict(payload)))
+        if method == "createChatInviteLink":
+            return {"invite_link": "https://t.me/+SAFE"}
+        return True
+
+    monkeypatch.setattr(backend, "_telegram_call", fake_telegram_call)
+    invite = backend._make_invite("987654321", "trial")
+
+    assert invite == "https://t.me/+SAFE"
+    assert [method for method, _ in calls] == ["unbanChatMember", "createChatInviteLink"]
+    assert calls[0][1]["only_if_banned"] is True
+    assert calls[0][1]["user_id"] == 987654321
