@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://fonsecatools.com.br/sitemap.xml

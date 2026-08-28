@@ -6,22 +6,87 @@
   <meta name="theme-color" content="#0b0d12" />
   <meta name="referrer" content="no-referrer" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://ia-over-production.up.railway.app; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'none'; upgrade-insecure-requests">
-  <title>Acesso Telegram | Fonsequinha</title>
-  <meta name="description" content="Teste grátis de 3 dias e acesso mensal ao Telegram Fonsequinha." />
+  <title>GolScope | Inteligência LIVE em futebol</title>
+  <meta name="description" content="GolScope é uma plataforma de sports analytics para leitura de desempenho do Consenso principal em partidas LIVE." />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://fonsecatools.com.br/" />
+  <meta property="og:title" content="GolScope | Inteligência LIVE em futebol" />
+  <meta property="og:description" content="Desempenho agregado e atualizado automaticamente do Consenso principal GolScope." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://fonsecatools.com.br/" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="trial.css" />
+  <link rel="stylesheet" href="performance.css" />
 </head>
 <body>
   <header class="topbar">
     <div class="brand-wrap">
-      <div class="brand-mark">F</div>
+      <div class="brand-mark">G</div>
       <div>
-        <div class="brand">FONSEQUINHA</div>
-        <div class="brand-sub">Acesso Premium</div>
+        <div class="brand">GOLSCOPE</div>
+        <div class="brand-sub">Live Intelligence</div>
       </div>
     </div>
     <div class="secure-chip"><span class="lock">●</span> Ambiente seguro</div>
   </header>
+
+  <section class="performance-shell" id="desempenho" aria-labelledby="performanceTitle">
+    <div class="performance-hero">
+      <div>
+        <div class="performance-kicker">GOLSCOPE PERFORMANCE</div>
+        <h1 id="performanceTitle">Desempenho do Consenso principal</h1>
+        <p>Leitura pública agregada, atualizada automaticamente a partir dos alertas efetivamente publicados. Os detalhes das partidas e dos sinais permanecem privados.</p>
+      </div>
+      <div class="live-badge"><span></span> Atualização LIVE</div>
+    </div>
+
+    <div class="performance-toolbar">
+      <div class="date-shortcuts" aria-label="Período">
+        <button id="perfToday" class="date-chip active" type="button">Hoje</button>
+        <button id="perfYesterday" class="date-chip" type="button">Ontem</button>
+      </div>
+      <label class="date-picker"><span>Selecionar data</span><input id="perfDate" type="date" /></label>
+    </div>
+
+    <div class="performance-grid">
+      <article class="rate-card">
+        <div class="rate-copy">
+          <span class="metric-label" id="performanceDateLabel">Hoje</span>
+          <strong id="perfHitRate">0%</strong>
+          <span>taxa de acerto nos resultados resolvidos</span>
+          <small id="perfHeadline">0 acertos / 0 erros</small>
+        </div>
+        <div id="perfDonut" class="donut" style="--hit-rate:0">
+          <div><strong id="perfDonutRate">0%</strong><span>acerto</span></div>
+        </div>
+      </article>
+
+      <article class="metric-card hit"><span class="metric-label">Acertos</span><strong id="perfHits">0</strong><small>resultados corretos</small></article>
+      <article class="metric-card miss"><span class="metric-label">Erros</span><strong id="perfMisses">0</strong><small>resultados incorretos</small></article>
+      <article class="metric-card pending"><span class="metric-label">Pendentes</span><strong id="perfPending">0</strong><small>fora do denominador</small></article>
+      <article class="metric-card resolved"><span class="metric-label">Resolvidos</span><strong id="perfResolved">0</strong><small>acertos + erros</small></article>
+    </div>
+
+    <div class="ratio-card" aria-label="Distribuição entre acertos e erros">
+      <div class="ratio-head"><strong>Distribuição resolvida</strong><span><b id="perfHitRateSmall">0%</b> acerto · <b id="perfMissRateSmall">0%</b> erro</span></div>
+      <div class="ratio-track"><div id="perfRatioHit" class="ratio-hit" style="width:0%"></div></div>
+    </div>
+
+    <div class="history-layout">
+      <article class="history-card">
+        <div class="history-head"><div><span class="metric-label">Histórico diário</span><h2>Evolução recente</h2></div><span id="perfUpdated" class="update-note">Carregando...</span></div>
+        <div id="perfEvolution" class="evolution" aria-live="polite"></div>
+      </article>
+      <article class="transparency-card">
+        <div class="transparency-icon">GS</div>
+        <div>
+          <strong>Transparência sem expor o sinal</strong>
+          <p>O painel contabiliza somente o Consenso principal efetivamente publicado. Pendentes não entram na taxa e reversões por VAR retornam ao estado canônico automaticamente.</p>
+          <span id="perfStatus">Sincronizando dados públicos...</span>
+        </div>
+      </article>
+    </div>
+  </section>
 
   <main class="checkout-shell">
     <section class="checkout-main">
@@ -109,8 +174,8 @@
     <aside class="summary-card">
       <div class="summary-top"><span class="summary-label">ACESSO PREMIUM</span><span class="plan-pill">Telegram</span></div>
       <div class="product-card">
-        <div class="product-icon">F</div>
-        <div><strong>Grupo Premium</strong><p>30 dias de acesso ao Telegram</p></div>
+        <div class="product-icon">G</div>
+        <div><strong>GolScope Premium</strong><p>30 dias de acesso ao Telegram</p></div>
       </div>
       <div class="trial-mini"><strong>Primeira vez?</strong><span>3 dias grátis, uma única vez.</span></div>
       <div class="price-lines">
@@ -137,6 +202,7 @@
     </div>
   </div>
 
+  <script src="performance.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

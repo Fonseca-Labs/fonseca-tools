@@ -1,6 +1,6 @@
 const CONFIG = {
   apiBase: 'https://ia-over-production.up.railway.app',
-  productName: 'Grupo Premium',
+  productName: 'GolScope Premium',
   basePrice: 150,
   currency: 'BRL'
 };
