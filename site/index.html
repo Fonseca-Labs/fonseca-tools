@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="trial.css" />
   <link rel="stylesheet" href="performance.css" />
+  <link rel="stylesheet" href="commercial.css" />
 </head>
 <body>
   <header class="topbar">
@@ -92,7 +93,7 @@
     <section class="checkout-main">
       <div class="eyebrow">ACESSO AO TELEGRAM</div>
       <h1>3 dias grátis. Depois, você decide.</h1>
-      <p class="lead">Use o grupo Premium por 72 horas sem pagar. O teste é liberado apenas uma vez por pessoa. Depois disso, o acesso mensal custa R$ 150 por 30 dias.</p>
+      <p class="lead">Use o grupo Premium por 72 horas sem pagar. O teste é liberado apenas uma vez por pessoa. Depois disso, a mensalidade normal é <strong id="normalPriceInline">carregando...</strong>.</p>
 
       <nav class="steps" aria-label="Etapas">
         <button class="step active" data-step-target="dados"><span>1</span> Dados</button>
@@ -134,14 +135,18 @@
         <button id="startTrial" class="btn trial full">Começar meus 3 dias grátis</button>
       </section>
 
-      <section class="panel" id="desconto">
+      <section class="panel campaign-panel" id="desconto">
         <div class="panel-head">
-          <div><div class="panel-kicker">03</div><h2>Desconto</h2></div>
-          <div class="coupon-badge">Até 5%</div>
+          <div><div class="panel-kicker">03</div><h2>THE 100</h2></div>
+          <div class="coupon-badge">Preço fundador</div>
         </div>
-        <p class="panel-copy">Se você recebeu um cupom, digite abaixo. Os cupons desta mensalidade concedem 5% de desconto.</p>
+        <div class="founder-offer">
+          <strong>Os 100 primeiros clientes pagam <span id="the100PriceInline">R$ 100,00</span>/mês para sempre.</strong>
+          <p>Use o código <b>THE100</b>. O benefício confirmado fica vinculado ao seu cadastro e não depende de navegador, cookie ou reentrada do cupom.</p>
+          <span id="the100Availability" class="campaign-availability">Consultando vagas reais...</span>
+        </div>
         <div class="coupon-row">
-          <input id="couponInput" class="coupon-input" placeholder="Digite seu cupom" autocomplete="off" />
+          <input id="couponInput" class="coupon-input" placeholder="Digite THE100" autocomplete="off" />
           <button id="applyCoupon" class="btn secondary">Aplicar cupom</button>
         </div>
         <div id="couponFeedback" class="coupon-feedback" aria-live="polite"></div>
@@ -154,7 +159,7 @@
       <section class="panel" id="pagamento">
         <div class="panel-head">
           <div><div class="panel-kicker">04</div><h2>Comprar 30 dias de acesso</h2></div>
-          <div class="status-dot">R$ 150/mês</div>
+          <div class="status-dot" id="paymentPriceBadge">Carregando preço...</div>
         </div>
         <p class="panel-copy">A compra libera 30 dias de acesso. Quando esse período terminar, uma nova mensalidade renova o acesso.</p>
 
@@ -179,18 +184,80 @@
       </div>
       <div class="trial-mini"><strong>Primeira vez?</strong><span>3 dias grátis, uma única vez.</span></div>
       <div class="price-lines">
-        <div><span>Mensalidade</span><strong id="subtotal">R$ 150,00</strong></div>
-        <div id="discountLine" class="discount-line hidden"><span>Desconto 5%</span><strong id="discountValue">- R$ 0,00</strong></div>
+        <div><span>Mensalidade normal</span><strong id="subtotal">—</strong></div>
+        <div id="discountLine" class="discount-line hidden"><span>Preço fundador THE100</span><strong id="discountValue">—</strong></div>
       </div>
-      <div class="total-line"><div><span>Total</span><small>30 dias de acesso</small></div><strong id="total">R$ 150,00</strong></div>
+      <div class="total-line"><div><span>Total mensal</span><small>valor definido pelo backend</small></div><strong id="total">—</strong></div>
       <div class="benefits">
         <div>✓ 3 dias grátis no primeiro acesso</div>
         <div>✓ Remoção automática após o trial se não comprar</div>
         <div>✓ Pagamento libera 30 dias</div>
-        <div>✓ Cupom de 5% quando disponível</div>
+        <div>✓ THE100 confirmado mantém R$100/mês</div>
       </div>
     </aside>
   </main>
+
+  <section class="contact-shell" aria-label="Suporte e feedback">
+    <article class="support-card">
+      <div class="contact-icon">?</div>
+      <div>
+        <span class="contact-kicker">SUPORTE</span>
+        <h2>Precisa de ajuda?</h2>
+        <p>Para dúvidas sobre acesso, cadastro, pagamento ou Telegram, fale com o suporte oficial.</p>
+        <a id="supportEmail" href="mailto:dev@fonsecatools.com.br">dev@fonsecatools.com.br</a>
+      </div>
+    </article>
+    <article class="feedback-card">
+      <div class="contact-icon">↗</div>
+      <div>
+        <span class="contact-kicker">FEEDBACK</span>
+        <h2>Ajude a melhorar o GolScope</h2>
+        <p>Sugestões, problemas e elogios seguem por um canal separado do suporte.</p>
+        <button id="openFeedback" class="btn feedback-button" type="button">Enviar feedback</button>
+      </div>
+    </article>
+  </section>
+
+  <footer class="golscope-footer">
+    <span>GolScope — Live Intelligence</span>
+    <span>fonsecatools.com.br</span>
+  </footer>
+
+  <div id="feedbackModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+    <div class="modal-card feedback-modal-card">
+      <button id="closeFeedback" class="modal-close" aria-label="Fechar feedback">×</button>
+      <div class="modal-icon feedback-modal-icon">GS</div>
+      <h3 id="feedbackTitle">Enviar feedback</h3>
+      <p class="feedback-intro">Este formulário é para opinião sobre o GolScope. Para suporte individual, use dev@fonsecatools.com.br.</p>
+      <form id="feedbackForm" novalidate>
+        <label class="feedback-field"><span>Avaliação <small>opcional</small></span>
+          <select id="feedbackRating">
+            <option value="">Sem nota</option>
+            <option value="5">5 — Excelente</option>
+            <option value="4">4 — Muito bom</option>
+            <option value="3">3 — Bom</option>
+            <option value="2">2 — Pode melhorar</option>
+            <option value="1">1 — Ruim</option>
+          </select>
+        </label>
+        <label class="feedback-field"><span>Categoria <small>opcional</small></span>
+          <select id="feedbackCategory">
+            <option value="">Sem categoria</option>
+            <option value="SUGESTAO">Sugestão</option>
+            <option value="PROBLEMA">Problema</option>
+            <option value="ELOGIO">Elogio</option>
+            <option value="OUTRO">Outro</option>
+          </select>
+        </label>
+        <label class="feedback-field"><span>Mensagem</span><textarea id="feedbackMessage" maxlength="2000" required placeholder="Conte o que podemos melhorar..."></textarea></label>
+        <label class="feedback-field"><span>E-mail <small>opcional</small></span><input id="feedbackEmail" type="email" autocomplete="email" placeholder="voce@email.com" /></label>
+        <input id="feedbackWebsite" class="feedback-honeypot" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <div class="feedback-warning">Não envie senhas ou dados de pagamento pelo formulário.</div>
+        <div id="feedbackStatus" class="feedback-status" aria-live="polite"></div>
+        <button id="sendFeedback" class="btn primary full" type="submit">Enviar feedback</button>
+      </form>
+    </div>
+  </div>
 
   <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-card">
