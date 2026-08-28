@@ -24,6 +24,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Validate GolScope frontend
+        run: |
+          node --check site/performance.js
+          node --check site/app.js
+          python - <<'PY'
+          from pathlib import Path
+          html = Path('site/index.html').read_text(encoding='utf-8')
+          js = Path('site/performance.js').read_text(encoding='utf-8').lower()
+          forbidden = ('fixture_id','line_over','probability','threshold','match_name','home_goals','away_goals')
+          leaks = [item for item in forbidden if item in js]
+          assert not leaks, leaks
+          assert 'GolScope' in html
+          assert Path('site/CNAME').read_text(encoding='utf-8').strip() == 'fonsecatools.com.br'
+          assert Path('site/robots.txt').exists() and Path('site/sitemap.xml').exists()
+          print('GolScope frontend validation PASS')
+          PY
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
