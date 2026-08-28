@@ -32,12 +32,23 @@ jobs:
           from pathlib import Path
           html = Path('site/index.html').read_text(encoding='utf-8')
           js = Path('site/performance.js').read_text(encoding='utf-8').lower()
+          checkout_js = Path('site/app.js').read_text(encoding='utf-8')
+          performance_css = Path('site/performance.css').read_text(encoding='utf-8')
+          commercial_css = Path('site/commercial.css').read_text(encoding='utf-8')
           sitemap = Path('site/sitemap.xml').read_text(encoding='utf-8')
           runbook = Path('GOLSCOPE_DOMAIN_MIGRATION.md').read_text(encoding='utf-8')
           forbidden = ('fixture_id','line_over','probability','threshold','match_name','home_goals','away_goals')
           leaks = [item for item in forbidden if item in js]
           assert not leaks, leaks
           assert 'GolScope' in html
+          assert 'THE 100' in html and 'R$100/mês' in html
+          assert 'dev@fonsecatools.com.br' in html
+          assert 'R$ 150' not in html
+          assert 'basePrice' not in checkout_js
+          assert 'amount:' not in checkout_js and 'price:' not in checkout_js
+          assert '/public/feedback' in checkout_js
+          assert 'min-width:0' in performance_css.replace(' ', '')
+          assert 'overflow-x:clip' in commercial_css.replace(' ', '')
           assert Path('site/CNAME').read_text(encoding='utf-8').strip() == 'fonsecatools.com.br'
           assert '<link rel="canonical" href="https://fonsecatools.com.br/"' in html
           assert 'https://fonsecatools.com.br/' in sitemap
