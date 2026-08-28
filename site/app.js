@@ -56,11 +56,13 @@ function installInputMasks() {
 }
 
 function buyerPayload() {
+  const accountToken = localStorage.getItem('checkout_public_token') || '';
   return {
     name: $('#name')?.value.trim() || '',
     email: $('#email')?.value.trim() || '',
     phone: $('#phone')?.value.trim() || '',
-    cpf: $('#cpf')?.value.trim() || ''
+    cpf: $('#cpf')?.value.trim() || '',
+    ...(accountToken ? { account_token: accountToken } : {})
   };
 }
 
@@ -236,6 +238,7 @@ async function applyCoupon() {
       method: 'POST',
       body: JSON.stringify({ ...buyerPayload(), coupon: code })
     });
+    if (data.public_token) localStorage.setItem('checkout_public_token', data.public_token);
     activeCoupon = data.coupon || code;
     applyQuote(data);
     setText('#couponCodeLabel', activeCoupon);
