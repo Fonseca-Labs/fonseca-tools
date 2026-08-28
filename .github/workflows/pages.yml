@@ -32,11 +32,20 @@ jobs:
           from pathlib import Path
           html = Path('site/index.html').read_text(encoding='utf-8')
           js = Path('site/performance.js').read_text(encoding='utf-8').lower()
+          sitemap = Path('site/sitemap.xml').read_text(encoding='utf-8')
+          runbook = Path('GOLSCOPE_DOMAIN_MIGRATION.md').read_text(encoding='utf-8')
           forbidden = ('fixture_id','line_over','probability','threshold','match_name','home_goals','away_goals')
           leaks = [item for item in forbidden if item in js]
           assert not leaks, leaks
           assert 'GolScope' in html
           assert Path('site/CNAME').read_text(encoding='utf-8').strip() == 'fonsecatools.com.br'
+          assert '<link rel="canonical" href="https://fonsecatools.com.br/"' in html
+          assert 'https://fonsecatools.com.br/' in sitemap
+          for public_file in Path('site').iterdir():
+              if public_file.is_file():
+                  assert 'golscope.com.br' not in public_file.read_text(encoding='utf-8', errors='ignore').lower(), public_file
+          assert 'DOMAIN_MIGRATION_PLANNED = NO' in runbook
+          assert 'DOMAIN_MIGRATION = CANCELLED' in runbook
           assert Path('site/robots.txt').exists() and Path('site/sitemap.xml').exists()
           print('GolScope frontend validation PASS')
           PY

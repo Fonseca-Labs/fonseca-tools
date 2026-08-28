@@ -1,35 +1,46 @@
-# GolScope domain migration runbook
+# GolScope domain decision / archived migration reference
 
-Status em 2026-08-28:
+## ACTIVE PRODUCT DECISION — 2026-08-28
 
-- `golscope.com.br`: consulta oficial ISAVAIL/Registro.br retornou `Status 0 (Available)`.
-- `golscope.com`: consulta RDAP Verisign retornou HTTP 404 e não há resolução DNS; confirmar novamente no registrador no momento da compra.
-- Compra/registro não executados. Bloqueio: `DOMAIN_PURCHASE_BLOCKED_BY_HUMAN_PAYMENT`.
-- Domínio público atual preservado: `fonsecatools.com.br`.
+- `PRODUCT_NAME = GOLSCOPE`
+- `PUBLIC_DOMAIN = fonsecatools.com.br`
+- `DOMAIN_MIGRATION_PLANNED = NO`
+- `DOMAIN_MIGRATION = CANCELLED`
+- `NEW_DOMAIN_PURCHASE_REQUIRED = NO`
 
-## Estado preparado no código
+The public product brand is **GolScope** / **GolScope — Live Intelligence** while the official public address remains:
 
-- Identidade visual pública: GolScope.
-- Backend aceita, em transição, origens `https://fonsecatools.com.br`, `https://golscope.com.br` e `https://www.golscope.com.br`.
-- `FRONTEND_URL` continua sendo a autoridade do retorno do Mercado Pago e não deve ser trocada antes do novo domínio estar funcional.
-- `site/CNAME`, canonical, sitemap e robots continuam apontando para o domínio atual até a aquisição do GolScope.
+`https://fonsecatools.com.br`
 
-## Migração após aquisição
+This is intentional. Do not purchase, register, configure, redirect to, or activate `golscope.com.br` under the current product decision.
 
-1. Registrar e verificar `golscope.com.br` na conta autorizada.
-2. Verificar o domínio no GitHub antes de ativá-lo no Pages.
-3. Configurar DNS do apex para GitHub Pages (`A`/`AAAA` oficiais do GitHub) e `www` via CNAME para o host Pages da organização/usuário.
-4. Validar propagação DNS e emissão HTTPS sem remover o domínio antigo.
-5. Trocar o Custom Domain do GitHub Pages e `site/CNAME` para `golscope.com.br`.
-6. Validar homepage, dashboard, assets e API via HTTPS.
-7. Alterar Railway `FRONTEND_URL` para `https://golscope.com.br`; manter `FRONTEND_URLS` com domínio antigo + novo durante a janela de transição.
-8. Validar CORS do novo domínio.
-9. Validar checkout completo e o `back_url` do Mercado Pago no novo domínio.
-10. Atualizar mensagens Telegram para apontar diretamente para `golscope.com.br`.
-11. Trocar canonical, OpenGraph URL, robots e sitemap para o GolScope.
-12. Configurar redirecionamento permanente do domínio antigo para o novo quando houver mecanismo de hosting/proxy adequado; GitHub Pages não deve ser usado como pressuposto para um 301 arbitrário entre dois domínios sem validar o comportamento real.
-13. Manter o domínio antigo ativo durante a transição e monitorar acessos/retornos de pagamento.
+## Active infrastructure rules
+
+- Keep `site/CNAME` as `fonsecatools.com.br`.
+- Keep DNS and GitHub Pages Custom Domain unchanged.
+- Keep canonical, OpenGraph URL, sitemap and robots on `https://fonsecatools.com.br`.
+- Keep Railway `FRONTEND_URL` on the currently functional public domain.
+- Keep Mercado Pago `back_url` derived from the current `FRONTEND_URL`; do not change it for a new domain.
+- Public frontend CORS must authorize `https://fonsecatools.com.br` plus only any separately configured technical origins that are demonstrably required. `golscope.com.br` and `www.golscope.com.br` are not default authorized origins.
+- Keep checkout `localStorage` on the current origin; no cross-domain migration is required.
+- Users, subscriptions, CPF/WhatsApp, Telegram linkage, databases and public performance API remain unchanged.
+
+## Historical reference — NOT PLANNED / NOT ACTIVE
+
+Earlier on 2026-08-28, `golscope.com.br` was checked as a possible future branded domain. That migration plan has been cancelled for the current product stage.
+
+The previous availability finding or any historical migration notes must **not** be interpreted as authorization to:
+
+- register or purchase a new domain;
+- change DNS;
+- change GitHub Pages Custom Domain or `site/CNAME`;
+- broaden CORS for a GolScope domain;
+- change Mercado Pago return URLs;
+- change canonical/sitemap to a new domain;
+- create redirects away from `fonsecatools.com.br`.
+
+Any future domain migration would require a new explicit product decision and a fresh audit before execution.
 
 ## localStorage
 
-`localStorage` é isolado por origem. As chaves do checkout no domínio atual não migram automaticamente para o GolScope. Usuários, assinaturas, CPF/WhatsApp, Telegram e pagamentos ficam preservados no backend; porém um checkout em andamento deve terminar no domínio em que começou. Por isso a troca de `FRONTEND_URL` só deve ocorrer depois da validação do novo domínio e com janela de coexistência.
+`localStorage` remains on the same origin because the public domain remains `fonsecatools.com.br`. Therefore the current checkout continuity is preserved and no cross-origin storage migration is needed.
