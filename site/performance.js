@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const API_BASE = 'https://ia-over-production.up.railway.app';
+  const API_BASE = 'https://golscope-api-production.up.railway.app';
   const POLL_ACTIVE_MS = 12000;
   const POLL_BACKGROUND_MS = 45000;
   const HISTORY_DAYS = 30;
